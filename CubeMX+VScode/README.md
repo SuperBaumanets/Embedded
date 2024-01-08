@@ -2,7 +2,7 @@
 
 Это памятка по созданию среды разработки для микроконтроллеров семейства STM32 в дистрибутивах GNU Linux с использованием кодогенератора от ST CubeMX и OpenOCD в качестве ПО для программирования и отладки. Используемый дистрибутив - Manjaro Linux версии 23.1.1, отладочная плата STM32F411.
 
-## Установка необходимого ПО для создания среды разработки  
+## Установка необходимых пакетов для создания среды разработки  
 Нам понадобиться установить менеджер пакетов yay:
 ```
 pamac install yay
@@ -31,10 +31,19 @@ pamac install arm-none-eabi-gdb
 ```
 
 ### openOCD
-Загрузчик:
+В качестве инструмента для отладки и программирования используется openOCD, для загрузки выполнить:
 ```
 pamac install openocd
 ```
+Также нам понадобится *.svd файл для просмотра регистров во время отладки. Этот файл можно взять с сайта ST:
+```
+https://www.st.com/en/microcontrollers-microprocessors/stm32-32-bit-arm-cortex-mcus.html
+```
+Переходите по ссылке, выбираете семейство микронтроллеров, далее переходите во вкладку **CAD Resources**, секция **SVD** и скачиваете архив:
+
+![Toolchain / IDE Makefile](srcImg/downloadSVD.png)
+
+В скачанном архиве находится директрия *STM32F4_svd_V**, где * версия релиза. Сохраняем ее в удобном для нас месте.
 
 ## Создание проекта в CubeMX
 Самый простой способ получить заготовку проекта - собрать его в CubeMX. Процесс интуитивно понятный, сотни раз описанный в сети и данный текст про настройку среды разработки, а не работу в CubeMX. Сгонфигуриуем проект и добавим пин отладочного интерфейса для мигания светодиодом. Далее необходимо выполнить несколько обязательных пунктов:
@@ -89,6 +98,17 @@ Core  Drivers  helloWord.ioc  Makefile  startup_stm32f411xe.s  STM32F411VETx_FLA
 make all
 ```
 Переходим в директорию *build* или указываем путь до *filename.elf* / *filename.hex* / *filename.bin* относительно того места, где мы находимся. 
+
+- В общем виде команда загрузки через готовый конфиг выглядит следующим образом:
+    ```
+    openocd -f board/stm32f4discovery.cfg -c "program filename.elf verify reset exit"
+    ```
+    - **board/config.cfg** - тут располагаются готовые конфигурационные файлы для работы с конкретной отладочной платой / микроконтроллером.
+    - **filename.elf/.hex/.bin** - 
+    - **verify** - 
+    - **reset** - 
+    - **exit** - 
+
 - Для загрузки нашего проекта на микроконтроллер, представленного как *filename.elf* необходимо выполнить команду:
     ```
     openocd -f board/stm32f4discovery.cfg -c "program filename.elf verify reset exit"
@@ -99,7 +119,112 @@ make all
     openocd -f board/stm32f4discovery.cfg -c "program filename.hex verify reset exit"
     ```
 
-- Для загрузки нашего проекта на микроконтроллер, представленного как *filename.bin* необходимо выполнить команду:
+- Для загрузки нашего проекта на микроконтроллер, представленного как *filename.bin* требуется передать адрес начала flash памяти. Выполнить команду:
     ```
     openocd -f board/stm32f4discovery.cfg -c "program helloWord.bin exit 0x08000000 reset exit"
     ```       
+
+## Отладка прошивки из VSCode 
+Сначала необходимо немного дополнить Makefile - добавить цель program. Наши дополнения не будут утеряны в случае изменения проекта в CubeMX. Добавим передм целью *clean*:
+
+```M
+#######################################
+# program
+#######################################
+program: $(BUILD_DIR)/$(TARGET).elf
+	openocd -f board/stm32f4discovery.cfg -c "program build/$(TARGET).elf verify exit reset"
+```
+
+Далее переходим в директорию проекта. В директории проекта создаем директорию *.vscode*. В директории *.vscode* создаем два файла:
+
+- **tasks.json** - В этом файле объявляются три задачи: сборка нашего проекта, очистка директории *build* и загрузка прошивки на микроконтроллер.
+    ```Json
+    {
+        "version": "2.0.0",
+        "tasks": [
+            {
+                "label": "Build",
+                "type": "shell",
+                "group": "build",
+                "command": "make all",
+                "problemMatcher": []
+            },
+            {
+                "label": "Clean",
+                "type": "shell",
+                "group": "build",
+                "command": "make clean",
+                "problemMatcher": []
+            },
+            {
+                "label": "Write firmware",
+                "type": "shell",
+                "command": "make program",
+                "problemMatcher": []
+            }
+        ]
+    }
+    ```
+    - **label** - команда, выбранная в Run Task....
+    - **type** - тип команды (shell - выполняется в командной оболочке).
+    - **command** - команда выполняемая в оболочке.
+    - **group** - установка данной команды как сборки по умолчанию, позволяет запускать сборку по нажатию сочетния клавиш *CTRL + SHIFT + B*.  
+Более подробно изучить поля и создание *tasks.json* файлов можно на официальном сайте Visual Studio Code в разделе **DOCS** -> **USER GUIDE** -> **Tasks**.
+
+- **launch.json** - 
+    ```Json
+    {
+	    "version": "0.2.0",
+	    "configurations": [
+	    	{
+	    		"name": "openocd",
+	    		"cwd": "${workspaceRoot}",
+	    		"executable": "./build/${workspaceFolderBasename}.elf",
+	    		"type": "cortex-debug",
+	    		"request": "launch",
+	    		"servertype": "openocd",
+	    		"svdFile": "/home/slava/MCU_Tools/svdConfigSTM32/STM32F4_svd_V1.9/STM32F411.svd",
+	    		"configFiles": [
+	    			"board/stm32f4discovery.cfg"
+	    		],
+	    		"preLaunchTask": "Build"
+	    	}
+	    ]
+    }
+    ```
+    - **name** - название, которое будет отображаться в окне *RUN AND DEBUG*.
+    - **cwd** - директория с проектом.
+    - **executable** - расположение elf файла.
+    - **type** - расширение для конфигурации.
+    - **request** - тип конфигурации.
+    - **servertype** - сервер отладки.
+    - **svdFile** - расположение *.swd файла для вашей отладочной платы / микроконтроллера
+    - **configFiles** - флаги передаваемые openOCD
+    - **preLaunchTask** - запуск задачи сборки проекта, описанной в *tasks.json*.  
+Более подробно изучить поля и создание *tasks.json* файлов можно на официальном сайте Visual Studio Code в разделе **DOCS** -> **USER GUIDE** -> **Debugging**.
+
+Самое важное - необходимо сообщить VSCode, где располагаются программы openocd и gdb (указать не пути к директориям с ними, а именно сами программы). Сделать это нужно в глобальном файле settings.json. Этот файл располагается в:
+```
+/home/<username>/.config/Code/User/settings.json
+```
+Также его можно открыть непосредственно из VSCode. Необходимо перейти во вкладку **File** -> **Preference** -> **Settings** и нажать на отметку, показанную ниже:
+
+![unimportant settings](srcImg/settingsJson.png)
+
+- **settings.json**
+    ```Json
+    {
+        "cortex-debug.armToolchainPath": "usr/bin",
+        "cortex-debug.openocdPath": "/usr/bin/openocd",
+        "cortex-debug.gdbPath": "/usr/bin/arm-none-eabi-gdb",
+    }
+    ```
+    - **cortex-debug.armToolchainPath** - путь к директории в которой располагается *arm-none-eabi-gcc*.
+    - **cortex-debug.openocdPath** - полный путь к бинарнику *openocd*.
+    - **cortex-debug.gdbPath** - полный путь к бинарнику *arm-none-eabi-gdb*.
+
+## Загрузка прошивки из VSCode
+
+## Trableshooting
+- **Configured debug type 'cortex-debug' is not supported**.  
+Если используете файл *launch.json*, показанный выше, то установите разрешение **Cortex-Debug** в *VSCode*.

@@ -185,6 +185,12 @@ $(BUILD_DIR):
 	mkdir $@		
 
 #######################################
+# program
+#######################################
+program: $(BUILD_DIR)/$(TARGET).elf
+	openocd -f board/stm32f4discovery.cfg -c "program build/$(TARGET).elf verify exit reset"
+
+#######################################
 # clean up
 #######################################
 clean:
