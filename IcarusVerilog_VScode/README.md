@@ -103,7 +103,22 @@ yay -S svls
 ![Task: Verilog: Language Server - svls ](srcImg/Extensions_LanguageServer_svls.png)  
 
 ### WaveTrace
+WaveTrace — это интерактивная программа просмотра сигналов для разработчиков FPGA/RTL прямо из под *VSCode*.
+
 ![WaveTrace](srcImg/WaveTrace.png)  
 
 ### Verilog Testbench Runner
+Это расширение для запуска testbench-ей прямо из под *VSCode*. Оно добавляет две кнопки, которые появляются в строке заголовка любого файла Verilog, и элемент состояния, расположенный в правом нижнем углу. Оно запускает симуляцию на Icarus Verilog и результат симуляции предложит открыть в GTKWave.
+
 ![Task: Verilog Testbench Runner ](srcImg/Verilog_Testbench_Runner.png)  
+
+### Task Explorer
+Для тех кто не любит запускать команды из Makefile, можно установить *Task Explorer*. Он представляет собой элемент выпадающего списка с целями из *Makefile* в боковой панели.
+
+### Programm
+iverilog -s logicFnct_tb logicFnct_tb.v ../src/logicFnct.v
+vvp -la.lst -n a.out -vcd
+quartus_pgm -m jtag -o "p;Demonstrations/GSensor/output_files/DE10_LITE_GSensor.sof"
+
+quartus_sh --flow compile logicFnct  (в src)
+quartus_pgm -m jtag -o "p;logicFnct.sof"                                                                             
