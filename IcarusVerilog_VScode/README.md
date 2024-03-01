@@ -15,7 +15,7 @@ pamac install iverilog
 
 Для комфортной работы с Verilog нам потребуется расширение, обеспечивающее подсветку синтаксиса языка, форматирование, linting и snippets. Будем использовать **Verilog-HDL/SystemVerilog/Bluespec SystemVerilog** оно не единственное возможное и требует несколько сторонних программ для работы, но это лучшее из того что есть на сегодняшний день. Скачиваем его прямо из *marketplace* в *VSCode*:
 
-![Task: Verilog-HDL/SystemVerilog/Bluespec SystemVerilog](srcImg/VerilogHDL_SystemVerilog_BluespecSystemVerilog.png)  
+![MarketPlace: Verilog-HDL/SystemVerilog/Bluespec SystemVerilog](srcImg/VerilogHDL_SystemVerilog_BluespecSystemVerilog.png)  
 
 #### Syntax Highlighting  
 Поддерживается подсветка синтаксиса для:
@@ -47,7 +47,7 @@ pamac install ctags
 Проверям наличие *PATH environment*:
 > **Attention:** *Verilog › Ctags: Path* - **ctags**
 
-![Task: Verilog › Linting: Linter ](srcImg/Extensions_ctags_PATH.png)
+![Settings: Verilog › Linting: Linter ](srcImg/Extensions_ctags_PATH.png)
 
 
 Добавляем следующие настройки в *.vscode/settings.json* в нашу рабочую область.
@@ -65,13 +65,13 @@ pamac install ctags
 Выбираем линтер:
 > **Attention:** *Verilog › Linting: Linter* - **iverilog**
 
-![Task: Verilog › Linting: Linter ](srcImg/Extensions_Verilog_Linting_Linter.png)  
+![Settings: Verilog › Linting: Linter ](srcImg/Extensions_Verilog_Linting_Linter.png)  
 
 
 В Icarus Verilog можно указать собственные аргументы для проверки, например *-Wall*.
 > **Attention:** *Verilog › Linting › Iverilog: Arguments* - **-Wall**
 
-![Task: Verilog › Linting › Iverilog: Arguments ](srcImg/Extensions_Verilog_Linting_Iverilog_Arguments.png)  
+![Settings: Verilog › Linting › Iverilog: Arguments ](srcImg/Extensions_Verilog_Linting_Iverilog_Arguments.png)  
 
 
 Список путей к директориям, которые будут использоваться при проверке *Icarus Verilog linting*.
@@ -81,7 +81,7 @@ pamac install ctags
 По умолчанию линтер будет запускаться в каталоге рабочей области. Если включить эту опцию, то линтер будет запускаться из места, где находится файл для проверки. Важный момент, если подключены директивы include, то они должны содержать пути к файлам относительно файла для проверки.
 > **Attention:** *Verilog › Linting › Iverilog: Run At File Location* - **Поставить галочку**
 
-![Task: Verilog › Linting › Iverilog: Run At File Location ](srcImg/Extensions_Linting_Iverilog_RunAtFileLocation.png)  
+![Settings: Verilog › Linting › Iverilog: Run At File Location ](srcImg/Extensions_Linting_Iverilog_RunAtFileLocation.png)  
 
 
 #### Language Server 
@@ -94,31 +94,47 @@ yay -S svls
 Проверям наличие *PATH environment*:
 > **Attention:** *Verilog › Language Server › Svls: Path* - **svls**
 
-![Task: Verilog: Language Server - svls ](srcImg/Extensions_LanguageServer_svls_PATH.png)  
+![Settings: Verilog: Verilog › Language Server › Svls: Path](srcImg/Extensions_LanguageServer_svls_PATH.png)  
 
 
 Выбираем языковой сервер:
 > **Attention:** *Verilog: Language Server* - **svls**
 
-![Task: Verilog: Language Server - svls ](srcImg/Extensions_LanguageServer_svls.png)  
+![Settings: Verilog: Language Server ](srcImg/Extensions_LanguageServer_svls.png)  
 
 ### WaveTrace
 WaveTrace — это интерактивная программа просмотра сигналов для разработчиков FPGA/RTL прямо из под *VSCode*.
 
-![WaveTrace](srcImg/WaveTrace.png)  
+![MarketPlace: WaveTrace](srcImg/WaveTrace.png)  
 
 ### Verilog Testbench Runner
 Это расширение для запуска testbench-ей прямо из под *VSCode*. Оно добавляет две кнопки, которые появляются в строке заголовка любого файла Verilog, и элемент состояния, расположенный в правом нижнем углу. Оно запускает симуляцию на Icarus Verilog и результат симуляции предложит открыть в GTKWave.
 
-![Task: Verilog Testbench Runner ](srcImg/Verilog_Testbench_Runner.png)  
+![MarketPlace: Verilog Testbench Runner ](srcImg/Verilog_Testbench_Runner.png)  
 
 ### Task Explorer
 Для тех кто не любит запускать команды из Makefile, можно установить *Task Explorer*. Он представляет собой элемент выпадающего списка с целями из *Makefile* в боковой панели.
 
-### Programm
-iverilog -s logicFnct_tb logicFnct_tb.v ../src/logicFnct.v
-vvp -la.lst -n a.out -vcd
-quartus_pgm -m jtag -o "p;Demonstrations/GSensor/output_files/DE10_LITE_GSensor.sof"
+![MarketPlace: Task Explorer ](srcImg/Task_Explorer.png)  
 
+Меняем *PATH environment* с *nmake* на *make*:
+> **Attention:** *Verilog: Language Server* - **svls**
+
+![Settings: Verilog: Task Explorer > Path to Programs ](srcImg/Extensions_Task_Explorer_PathToPrograms.png)
+
+### Quartus
+Устанавливаем quartus, следуя шагам установки.
+```
+yay quartus-free 
+```
+
+### Programm
+#### Для симуляции
+Компиляция
+iverilog -s logicFnct_tb logicFnct_tb.v ../src/logicFnct.v
+Файл для симуляции (для запуска в GTKWave или WaveTrace)
+vvp -la.lst -n a.out -vcd
+
+Компиляция кучи файлов через квартус
 quartus_sh --flow compile logicFnct  (в src)
-quartus_pgm -m jtag -o "p;logicFnct.sof"                                                                             
+quartus_pgm -m jtag -o "p;logicFnct.sof"                                             
