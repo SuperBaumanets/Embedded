@@ -140,12 +140,21 @@ build
 └── logicFnct_tb.v.out
 ```
 
+Для просмотра временных диаграмм откроем файл *dump.vcd*, перед нами появится следующее окно:
+
 ![WaveTrace: add signal button](srcImg/waveTrace_addSignalButton.png)
+
+
+Чтобы просмотреть сигналы в области вывода их необходимо сначала добавить. Сделать это можно следующим образом: кликнуть на синюю отметку *Add Signals* -> во всплывающем окне кликнуть на интересующий нас сигнал(в примере: *dut a*) -> снова кликнуть на синию отметку *Add Signals*.
 
 ![WaveTrace: add signal ](srcImg/waveTrace_addSignal.png)
 
+
+Область вывода с выбранным сигналами:
+
 ![WaveTrace: result of Simulation ](srcImg/waveTrace_resSimulation.png)
 
+Более подробно с возможностями WaveTrace можно ознакомиться на [странице](https://marketplace.visualstudio.com/items?itemName=wavetrace.wavetrace) Marketplace-a.
 
 ### Task Explorer
 Для тех кто не любит запускать команды из Makefile, можно установить *Task Explorer*. Он представляет собой элемент выпадающего списка с целями из *Makefile* в боковой панели.

@@ -1,5 +1,6 @@
 `timescale 1ns/100ps
-`include "../src/logicFnct.v"
+
+//`include "../src/logicFnct.v"
 
 module logicFnct_tb;
 
